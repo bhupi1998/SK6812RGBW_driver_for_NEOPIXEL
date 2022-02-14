@@ -8,9 +8,9 @@ void neoPixelPWMSetUp();
 
 #define dcoFreq 20                      //MHz.
 #define sclkDiv 2                          //SPI sclk divide. SCLK MAX to the DAC is 20MHz.
-int alternate=0;
-int bitCount=0;
-int resetCount=0;
+int arrayIndex=0;
+int bitArray[]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+
 int main(void)
 {
  	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
@@ -27,7 +27,6 @@ int main(void)
 	neoPixelPWMSetUp();
 	_bis_SR_register(GIE);
 	TA0CTL|= TAIE; //enabling timer A;
-
 	while(1){
 	    }
 	return 0;
@@ -49,20 +48,22 @@ void neoPixelPWMSetUp(){
 
 #pragma vector = TIMER0_A1_VECTOR //CCR0   /* 0xFFE8
 __interrupt void dataTransferNEOPIXEL (void){
+    if(arrayIndex<=32){
+        if(bitArray[arrayIndex] ==1){
+            TA0CCR1=12;
+        }else
+            TA0CCR1=8;
+        arrayIndex++;
+    }else{
+        TA0CTL=0x0;
+        P1OUT=BIT2;
+    }
     switch(__even_in_range(TA0IV,0xE))
     {
     case 0:break;
     case 2:
-        TA0CCTL1 &= ~CCIFG; //signals 1 pwm cycles has been completed. Means that a bit has gone through.
-       if(alternate==1){
-            TA0CCR1=8;// equals to a 0
-            alternate=0;
-        }
-            else if(alternate == 0){
-            TA0CCR1=12; //equals to a 1
-            alternate=1;
-        }
-        bitCount++;
+       // TA0CCTL1 &= ~CCIFG; //signals 1 pwm cycles has been completed. Means that a bit has gone through.
+
         break;
     case 4:break;
     case 6:break;
@@ -70,17 +71,8 @@ __interrupt void dataTransferNEOPIXEL (void){
     case 0xA:break;
     case 0xC:break;
     case 0xE:
-        TA0CTL &= ~TAIFG; //signals 1 pwm cycles has been completed. Means that a bit has gone through.
-        if(bitCount >= 384){
-            TA0CCR1=0;
-            alternate=2;
-            resetCount++;
-        }
-        if(resetCount > 68){
-            alternate=0;
-            resetCount=0;
-            bitCount=0;
-        }
+       // TA0CTL &= ~TAIFG; //signals 1 pwm cycles has been completed. Means that a bit has gone through.
+
         break;
     default: break;
     }
