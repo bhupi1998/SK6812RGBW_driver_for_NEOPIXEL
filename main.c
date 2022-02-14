@@ -54,7 +54,7 @@ __interrupt void dataTransferNEOPIXEL (void){
     case 0:break;
     case 2:
         TA0CCTL1 &= ~CCIFG; //signals 1 pwm cycles has been completed. Means that a bit has gone through.
-       /*if(alternate==1){
+       if(alternate==1){
             TA0CCR1=8;// equals to a 0
             alternate=0;
         }
@@ -62,7 +62,7 @@ __interrupt void dataTransferNEOPIXEL (void){
             TA0CCR1=12; //equals to a 1
             alternate=1;
         }
-        bitCount++;*/
+        bitCount++;
         break;
     case 4:break;
     case 6:break;
@@ -71,7 +71,7 @@ __interrupt void dataTransferNEOPIXEL (void){
     case 0xC:break;
     case 0xE:
         TA0CTL &= ~TAIFG; //signals 1 pwm cycles has been completed. Means that a bit has gone through.
-        /*if(bitCount >= 384){
+        if(bitCount >= 384){
             TA0CCR1=0;
             alternate=2;
             resetCount++;
@@ -80,7 +80,7 @@ __interrupt void dataTransferNEOPIXEL (void){
             alternate=0;
             resetCount=0;
             bitCount=0;
-        }*/
+        }
         break;
     default: break;
     }
